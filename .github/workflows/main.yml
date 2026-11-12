@@ -22,9 +22,10 @@ jobs:
           gradle-version: '8.7'
       - name: Find project folder
         run: |
+          for z in *.zip; do [ -f "$z" ] && unzip -o -q "$z"; done
           f=$(find . -name settings.gradle.kts -not -path "./.git/*" | head -1)
           if [ -z "$f" ]; then
-            echo "::error::settings.gradle.kts 파일을 찾지 못했어요. 아래 파일 목록을 캡처해 주세요."
+            echo "::error::settings.gradle.kts 파일을 찾지 못했어요."
             find . -not -path "./.git/*" -type f | head -80
             exit 1
           fi
