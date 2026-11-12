@@ -20,10 +20,20 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
+      - name: Find project folder
+        run: |
+          f=$(find . -name settings.gradle.kts -not -path "./.git/*" | head -1)
+          if [ -z "$f" ]; then
+            echo "::error::settings.gradle.kts 파일을 찾지 못했어요. 아래 파일 목록을 캡처해 주세요."
+            find . -not -path "./.git/*" -type f | head -80
+            exit 1
+          fi
+          echo "PROJ=$(dirname "$f")" >> "$GITHUB_ENV"
+          echo "프로젝트 폴더: $(dirname "$f")"
       - name: Build debug APK
-        run: gradle assembleDebug --no-daemon --stacktrace
+        run: cd "$PROJ" && gradle assembleDebug --no-daemon --stacktrace
       - name: Rename APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk kkoko-tamagotchi.apk
+        run: cp "$PROJ/app/build/outputs/apk/debug/app-debug.apk" kkoko-tamagotchi.apk
       - uses: actions/upload-artifact@v4
         with:
           name: kkoko-tamagotchi-apk
